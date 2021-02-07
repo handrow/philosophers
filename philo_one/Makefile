@@ -5,7 +5,7 @@ CC_FLAGS = -Wall -Wextra -Werror -O0
 
 DIR_O = objs
 OBJS = $(addprefix $(DIR_O)/,$(FILES:.c=.o))
-FILES = main.c utils.c
+FILES = main.c utils.c philo_atomic.c
 
 DEPS = $(OBJS:.o=.d)
 

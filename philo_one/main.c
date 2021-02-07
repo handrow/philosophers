@@ -6,60 +6,18 @@
 /*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 18:26:27 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/07 19:16:52 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/07 20:42:53 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include <pthread.h>
-#include <stdint.h>
 #include <sys/time.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 
+#include "philo_one.h"
 #include "utils.h"
-
-#define SLEEP_DELAY_US 100
-#define	MAX_PHILO_NUM 1000
-#define PHILO_WORKER_START_DELAY_MS 1000
-#define WORKER_WATCHER_DELAY_US 100
-#define EVEN_WORKER_START_DELAY_US 200
-
-typedef int64_t		t_time_ms;
-
-enum				e_setting_idx
-{
-	PHILO_NUM_ARG_IDX = 1,
-	PHILO_TTD_ARG_IDX = 2,
-	PHILO_TTE_ARG_IDX = 3,
-	PHILO_TTS_ARG_IDX = 4,
-	PHILO_MEAL_COUNT_ARG_IDX = 5,
-
-	PHILO_ARG_LIMIT_MIN = 5,
-	PHILO_ARG_LIMIT_MAX = 6
-};
-
-struct				s_settings
-{
-	int				philo_num;
-	int				meal_count;
-	t_time_ms	 	time_to_eat;
-	t_time_ms	 	time_to_sleep;
-	t_time_ms	 	time_to_die;
-};
-
-typedef struct		s_atomic_time_ms
-{
-	t_time_ms		value;
-	pthread_mutex_t	guard;
-}					t_atomic_time_ms;
-
-typedef struct		s_atomic_bool
-{
-	bool			value;
-	pthread_mutex_t	guard;
-}					t_atomic_bool;
 
 struct s_settings	g_settings;
 t_atomic_bool		g_print_guard;
@@ -68,40 +26,6 @@ pthread_mutex_t		g_fork_pool[MAX_PHILO_NUM];
 pthread_t			g_philo_pool[MAX_PHILO_NUM];
 t_atomic_time_ms	g_deadline_pool[MAX_PHILO_NUM];
 t_atomic_bool		g_exited_pool[MAX_PHILO_NUM];
-
-bool				get_atomic_bool(t_atomic_bool *atom)
-{
-	bool	val;
-
-	pthread_mutex_lock(&atom->guard);
-	val = atom->value;
-	pthread_mutex_unlock(&atom->guard);
-	return (val);
-}
-
-void				set_atomic_bool(t_atomic_bool *atom, bool value)
-{
-	pthread_mutex_lock(&atom->guard);
-	atom->value = value;
-	pthread_mutex_unlock(&atom->guard);
-}
-
-t_time_ms			get_atomic_time_ms(t_atomic_time_ms *atom)
-{
-	t_time_ms	val;
-
-	pthread_mutex_lock(&atom->guard);
-	val = atom->value;
-	pthread_mutex_unlock(&atom->guard);
-	return (val);
-}
-
-void				set_atomic_time_ms(t_atomic_time_ms *atom, t_time_ms value)
-{
-	pthread_mutex_lock(&atom->guard);
-	atom->value = value;
-	pthread_mutex_unlock(&atom->guard);
-}
 
 t_time_ms			get_current_time_ms(void)
 {
