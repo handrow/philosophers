@@ -6,7 +6,7 @@
 /*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 18:26:27 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/06 22:13:32 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/07 19:16:52 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 #define SLEEP_DELAY_US 100
 #define	MAX_PHILO_NUM 1000
 #define PHILO_WORKER_START_DELAY_MS 1000
+#define WORKER_WATCHER_DELAY_US 100
+#define EVEN_WORKER_START_DELAY_US 200
 
 typedef int64_t		t_time_ms;
 
@@ -60,7 +62,7 @@ typedef struct		s_atomic_bool
 }					t_atomic_bool;
 
 struct s_settings	g_settings;
-pthread_mutex_t		g_print_guard;
+t_atomic_bool		g_print_guard;
 t_time_ms			g_worker_start;
 pthread_mutex_t		g_fork_pool[MAX_PHILO_NUM];
 pthread_t			g_philo_pool[MAX_PHILO_NUM];
@@ -84,7 +86,7 @@ void				set_atomic_bool(t_atomic_bool *atom, bool value)
 	pthread_mutex_unlock(&atom->guard);
 }
 
-bool				get_atomic_time_ms(t_atomic_time_ms *atom)
+t_time_ms			get_atomic_time_ms(t_atomic_time_ms *atom)
 {
 	t_time_ms	val;
 
@@ -94,7 +96,7 @@ bool				get_atomic_time_ms(t_atomic_time_ms *atom)
 	return (val);
 }
 
-void				set_atomic_time_ms(t_atomic_time_ms *atom, bool value)
+void				set_atomic_time_ms(t_atomic_time_ms *atom, t_time_ms value)
 {
 	pthread_mutex_lock(&atom->guard);
 	atom->value = value;
@@ -159,7 +161,7 @@ void				init_status_pools(t_atomic_time_ms deadline_pool[],
 	i = 0;
 	while (i < num)
 	{
-		deadline_pool[i].value = g_worker_start + g_settings.time_to_die;
+		deadline_pool[i].value = g_worker_start + g_settings.time_to_die + 1;
 		pthread_mutex_init(&(deadline_pool[i++].guard), NULL);
 	}
 	i = 0;
@@ -169,8 +171,6 @@ void				init_status_pools(t_atomic_time_ms deadline_pool[],
 		pthread_mutex_init(&(exit_pool[i++].guard), NULL);
 	}
 }
-
-
 
 void				destroy_status_pools(t_atomic_time_ms deadline_pool[],
 										t_atomic_bool exit_pool[], int num)
@@ -185,21 +185,146 @@ void				destroy_status_pools(t_atomic_time_ms deadline_pool[],
 		pthread_mutex_destroy(&(exit_pool[i++].guard));
 }
 
-void				init_atomic_print(pthread_mutex_t *print_guard)
+void				init_atomic_print(t_atomic_bool *print_guard)
 {
-	pthread_mutex_init(print_guard, NULL);
+	print_guard->value = true;
+	pthread_mutex_init(&print_guard->guard, NULL);
 }
 
-void				destroy_atomic_print(pthread_mutex_t *print_guard)
+void				destroy_atomic_print(t_atomic_bool *print_guard)
 {
-	pthread_mutex_destroy(print_guard);
+	pthread_mutex_destroy(&print_guard->guard);
 }
 
 void				print_atomic_message(int philo_idx, const char *msg)
 {
-	pthread_mutex_lock(&g_print_guard);
-	printf("%-6llu ms | %-3d | %s\n", get_current_time_ms(), philo_idx + 1, msg);
-	pthread_mutex_unlock(&g_print_guard);
+	pthread_mutex_lock(&g_print_guard.guard);
+	if (g_print_guard.value)
+		printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+	pthread_mutex_unlock(&g_print_guard.guard);
+}
+
+void				print_last_atomic_message(int philo_idx, const char *msg)
+{
+	pthread_mutex_lock(&g_print_guard.guard);
+	if (g_print_guard.value)
+		printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+	g_print_guard.value = false;
+	pthread_mutex_unlock(&g_print_guard.guard);
+}
+
+void				choose_forks(int philo_idx, pthread_mutex_t **ffork, pthread_mutex_t **sfork)
+{
+	if (philo_idx == g_settings.philo_num - 1)
+	{
+		*ffork = &g_fork_pool[(philo_idx + 1) % g_settings.philo_num];
+		*sfork = &g_fork_pool[philo_idx];
+	}
+	else
+	{
+		*ffork = &g_fork_pool[philo_idx];
+		*sfork = &g_fork_pool[(philo_idx + 1) % g_settings.philo_num];
+	}
+}
+
+void				take_forks(int philo, pthread_mutex_t *ff, pthread_mutex_t *sf)
+{
+	pthread_mutex_lock(ff);
+	print_atomic_message(philo, "has taken a fork");
+	pthread_mutex_lock(sf);
+	print_atomic_message(philo, "has taken a fork");
+}
+
+void				put_forks(pthread_mutex_t *ff, pthread_mutex_t *sf)
+{
+	pthread_mutex_unlock(ff);
+	pthread_mutex_unlock(sf);
+}
+
+void				*philo_fedup_handler(int philo_idx)
+{
+	print_atomic_message(philo_idx, "is full of spagetti");
+	set_atomic_time_ms(&g_deadline_pool[philo_idx], get_current_time_ms() + 10000);
+	set_atomic_bool(&g_exited_pool[philo_idx], true);
+	return (NULL);
+}
+
+void				*philo_worker(void *param)
+{
+	const int		philo_idx = (int)(size_t)param;
+	pthread_mutex_t	*first_fork;
+	pthread_mutex_t	*second_fork;
+	int				meal_count;
+
+	meal_count = 0;
+	choose_forks(philo_idx, &first_fork, &second_fork);
+	sleep_until_ms(g_worker_start);
+	if ((philo_idx % 2) == 1)
+		usleep(EVEN_WORKER_START_DELAY_US);
+	while (!get_atomic_bool(&g_exited_pool[philo_idx]))
+	{
+		print_atomic_message(philo_idx, "is thinking");
+		take_forks(philo_idx, first_fork, second_fork);
+		print_atomic_message(philo_idx, "is eating");
+		sleep_until_ms(get_current_time_ms() + g_settings.time_to_eat);
+		put_forks(first_fork, second_fork);
+		if (g_settings.meal_count > 0 && ++meal_count >= g_settings.meal_count)
+			return (philo_fedup_handler(philo_idx));
+		set_atomic_time_ms(&g_deadline_pool[philo_idx], get_current_time_ms() + g_settings.time_to_die + 1);
+		print_atomic_message(philo_idx, "is sleeping");
+		sleep_until_ms(get_current_time_ms() + g_settings.time_to_sleep);
+	}
+	return (NULL);
+}
+
+void				launch_workers(pthread_t philo_pool[], int num)
+{
+	int	i;
+
+	i = -1;
+	while (++i < num)
+		pthread_create(&philo_pool[i], NULL, philo_worker, (void*)(size_t)i);
+}
+
+void				philo_death_handler(int philo_idx, t_atomic_bool exit_pool[], int num)
+{
+	int	i;
+
+	print_last_atomic_message(philo_idx, "died");
+	i = -1;
+	while (++i < num)
+		set_atomic_bool(&exit_pool[i], true);
+	
+}
+
+void				watch_workers(pthread_t philo_pool[], t_atomic_time_ms deadline_pool[],
+										t_atomic_bool exit_pool[], int num)
+{
+	int		i;
+	bool	run;
+	bool	sum;
+
+	run = true;
+	while (run)
+	{
+		sum = true;
+		i = -1;
+		while (++i < num)
+		{
+			if (get_current_time_ms() >= get_atomic_time_ms(&deadline_pool[i]))
+			{
+				philo_death_handler(i, exit_pool, num);
+				run = false;
+				break;
+			}
+			sum = sum && get_atomic_bool(&exit_pool[i]);
+		}
+		run = !sum;
+		usleep(WORKER_WATCHER_DELAY_US);
+	}
+	i = -1;
+	while (++i < num)
+		pthread_join(philo_pool[i], NULL);
 }
 
 int					main(int ac, char *av[])
@@ -212,8 +337,8 @@ int					main(int ac, char *av[])
 	init_atomic_print(&g_print_guard);
 	init_fork_pool(g_fork_pool, g_settings.philo_num);
 	init_status_pools(g_deadline_pool, g_exited_pool, g_settings.philo_num);
-	// LAUNCH WORKRES
-	// WATCH WORKERS
+	launch_workers(g_philo_pool, g_settings.philo_num);
+	watch_workers(g_philo_pool, g_deadline_pool, g_exited_pool, g_settings.philo_num);
 	destroy_status_pools(g_deadline_pool, g_exited_pool, g_settings.philo_num);
 	destroy_fork_pool(g_fork_pool, g_settings.philo_num);
 	destroy_atomic_print(&g_print_guard);
