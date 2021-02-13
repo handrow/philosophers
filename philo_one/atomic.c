@@ -1,18 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_atomic.c                                     :+:      :+:    :+:   */
+/*   atomic.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
+/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 20:40:33 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/07 20:42:28 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/13 22:48:41 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/time.h>
-#include <stdbool.h>
-#include "philo_one.h"
+#include "philo.h"
 
 bool		get_atomic_bool(t_atomic_bool *atom)
 {

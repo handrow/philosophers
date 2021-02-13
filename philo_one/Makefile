@@ -1,11 +1,11 @@
 NAME = philo_one
 
 CC = clang
-CC_FLAGS = -Wall -Wextra -Werror -O0
+CC_FLAGS = -Wall -Wextra -Werror -O3
 
 DIR_O = objs
 OBJS = $(addprefix $(DIR_O)/,$(FILES:.c=.o))
-FILES = main.c utils.c philo_atomic.c
+FILES = main.c utils.c atomic.c globals.c init_helper.c printer.c timing.c worker.c
 
 DEPS = $(OBJS:.o=.d)
 
