@@ -1,22 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   init_helper.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/06 18:29:22 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 00:05:59 by handrow          ###   ########.fr       */
+/*   Created: 2021/02/13 22:32:46 by handrow           #+#    #+#             */
+/*   Updated: 2021/02/16 01:08:35 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#include "philo.h"
 
-# include <stddef.h>
+void				init_fork_pool(sem_t **forks, int num)
+{
+	*forks = sem_create(SEMNAME_FORK_POOL, 0, num / 2);
+}
 
-unsigned long			ft_atoi(const char *str);
-int						ft_strlen(const char *str);
-void					*ft_memcpy(void *dest, const void *src, size_t n);
+void				destroy_fork_pool(sem_t **forks, int num)
+{
+	(void)num;
+	sem_close(*forks);
+	sem_delete(SEMNAME_FORK_POOL, 0);
+	*forks = NULL;
+}
 
-#endif
+void				destroy_status_pools(int num)
+{
+	int	i;
+
+	i = -1;
+	while (++i < num)
+		sem_delete(SEMNAME_DEADLINE, i);
+}

@@ -1,22 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   timing.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/06 18:29:22 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 00:05:59 by handrow          ###   ########.fr       */
+/*   Created: 2021/02/13 22:28:44 by handrow           #+#    #+#             */
+/*   Updated: 2021/02/14 01:34:09 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#include <sys/time.h>
 
-# include <stddef.h>
+#include "philo.h"
 
-unsigned long			ft_atoi(const char *str);
-int						ft_strlen(const char *str);
-void					*ft_memcpy(void *dest, const void *src, size_t n);
+t_time_ms			get_current_time_ms(void)
+{
+	struct timeval	tv;
+	
+	gettimeofday(&tv, NULL);
+	return ((t_time_ms)tv.tv_sec * 1000LL + (t_time_ms)tv.tv_usec / 1000LL); 
+}
 
-#endif
+void				sleep_until_ms(t_time_ms deadline)
+{
+	while (true)
+	{
+		if (get_current_time_ms() >= deadline)
+			break;
+		usleep(SLEEP_DELAY_US);
+	}
+}
