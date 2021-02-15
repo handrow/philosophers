@@ -6,7 +6,7 @@
 /*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/13 22:34:04 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/13 22:34:50 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 01:42:28 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static void			put_forks(pthread_mutex_t *ff, pthread_mutex_t *sf)
 
 static void			*philo_fedup_handler(int philo_idx)
 {
+	set_atomic_time_ms(&g_deadline_pool[philo_idx], MAX_TIME_MS);
 	print_atomic_message(philo_idx, "is full of spagetti");
-	set_atomic_time_ms(&g_deadline_pool[philo_idx], get_current_time_ms() + 10000);
 	set_atomic_bool(&g_exited_pool[philo_idx], true);
 	return (NULL);
 }

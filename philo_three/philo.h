@@ -6,7 +6,7 @@
 /*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 20:30:51 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:17:13 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 01:40:58 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,9 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <semaphore.h>
+# include <limits.h>
 
+# define MAX_TIME_MS INT64_MAX
 # define SLEEP_DELAY_US 200
 # define MAX_PHILO_NUM 200
 # define PHILO_WORKER_START_DELAY_MS 1000
