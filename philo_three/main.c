@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 18:26:27 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:15:34 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:29:12 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ static bool	fill_settings(struct s_settings *settings, int ac, char *av[])
 	return (!(
 		(settings->philo_num < 2 || settings->philo_num > 200) ||
 		(settings->time_to_die < 60) || (settings->time_to_eat < 60) ||
-		(settings->time_to_sleep < 60)
-	));
+		(settings->time_to_sleep < 60)));
 }
 
 int			main(int ac, char *av[])

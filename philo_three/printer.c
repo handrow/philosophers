@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   printer.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/13 22:30:49 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:29:17 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:28:48 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,14 @@ void				destroy_atomic_print(t_atomic_bool *print_guard)
 void				print_atomic_message(int philo_idx, const char *msg)
 {
 	sem_wait(g_print_guard.guard);
-	printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+	printf("%6llu ms | %3d | %s\n",
+		get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
 	sem_post(g_print_guard.guard);
 }
 
 void				print_last_atomic_message(int philo_idx, const char *msg)
 {
 	sem_wait(g_print_guard.guard);
-	printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+	printf("%6llu ms | %3d | %s\n",
+		get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
 }

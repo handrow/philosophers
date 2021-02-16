@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   worker_status.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/16 01:14:41 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:16:49 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:29:51 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ enum e_exit_status	philo_check_exit_status(pid_t p)
 	if (waitpid(p, &stat, WNOHANG) > 0)
 	{
 		if (WIFEXITED(stat))
-			return (WEXITSTATUS(stat) == STATUS_FEDUP ? STATUS_FEDUP : STATUS_DIED);
+			return (WEXITSTATUS(stat) == STATUS_FEDUP ? STATUS_FEDUP
+													: STATUS_DIED);
 	}
 	return (STATUS_UNKOWN);
 }

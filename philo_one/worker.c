@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   worker.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/13 22:34:04 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:42:28 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:23:45 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void			choose_forks(int philo_idx, pthread_mutex_t **ffork, pthread_mutex_t **sfork)
+static void			choose_forks(int philo_idx,
+								pthread_mutex_t **ffork,
+								pthread_mutex_t **sfork)
 {
 	if (philo_idx == g_settings.philo_num - 1)
 	{
@@ -26,7 +28,9 @@ static void			choose_forks(int philo_idx, pthread_mutex_t **ffork, pthread_mutex
 	}
 }
 
-static void			take_forks(int philo, pthread_mutex_t *ff, pthread_mutex_t *sf)
+static void			take_forks(int philo,
+							pthread_mutex_t *ff,
+							pthread_mutex_t *sf)
 {
 	pthread_mutex_lock(ff);
 	print_atomic_message(philo, "has taken a fork");
@@ -69,7 +73,8 @@ void				*philo_worker(void *param)
 		put_forks(first_fork, second_fork);
 		if (g_settings.meal_count > 0 && ++meal_count >= g_settings.meal_count)
 			return (philo_fedup_handler(philo_idx));
-		set_atomic_time_ms(&g_deadline_pool[philo_idx], get_current_time_ms() + g_settings.time_to_die + 1);
+		set_atomic_time_ms(&g_deadline_pool[philo_idx],
+					get_current_time_ms() + g_settings.time_to_die + 1);
 		print_atomic_message(philo_idx, "is sleeping");
 		sleep_until_ms(get_current_time_ms() + g_settings.time_to_sleep);
 	}

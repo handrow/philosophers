@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   worker.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/13 22:34:04 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/16 01:41:38 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:26:10 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ void				*philo_worker(void *param)
 		put_forks();
 		if (g_settings.meal_count > 0 && ++meal_count >= g_settings.meal_count)
 			return (philo_fedup_handler(philo_idx));
-		set_atomic_time_ms(&g_deadline_pool[philo_idx], get_current_time_ms() + g_settings.time_to_die + 1);
+		set_atomic_time_ms(&g_deadline_pool[philo_idx],
+						get_current_time_ms() + g_settings.time_to_die + 1);
 		print_atomic_message(philo_idx, "is sleeping");
 		sleep_until_ms(get_current_time_ms() + g_settings.time_to_sleep);
 	}

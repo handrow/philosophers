@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   printer.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/13 22:30:49 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/14 00:46:21 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:25:50 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void				print_atomic_message(int philo_idx, const char *msg)
 {
 	sem_wait(g_print_guard.guard);
 	if (g_print_guard.value)
-		printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+		printf("%6llu ms | %3d | %s\n",
+			get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
 	sem_post(g_print_guard.guard);
 }
 
@@ -39,7 +40,8 @@ void				print_last_atomic_message(int philo_idx, const char *msg)
 {
 	sem_wait(g_print_guard.guard);
 	if (g_print_guard.value)
-		printf("%6llu ms | %3d | %s\n", get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
+		printf("%6llu ms | %3d | %s\n",
+			get_current_time_ms() - g_worker_start, philo_idx + 1, msg);
 	g_print_guard.value = false;
 	sem_post(g_print_guard.guard);
 }

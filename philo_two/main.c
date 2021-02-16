@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: handrow <handrow@42.fr>                    +#+  +:+       +#+        */
+/*   By: handrow <handrow@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/06 18:26:27 by handrow           #+#    #+#             */
-/*   Updated: 2021/02/14 01:34:38 by handrow          ###   ########.fr       */
+/*   Updated: 2021/02/16 16:27:23 by handrow          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,7 @@ static bool	fill_settings(struct s_settings *settings, int ac, char *av[])
 	return (!(
 		(settings->philo_num < 2 || settings->philo_num > 200) ||
 		(settings->time_to_die < 60) || (settings->time_to_eat < 60) ||
-		(settings->time_to_sleep < 60)
-	));
+		(settings->time_to_sleep < 60)));
 }
 
 static void	launch_workers(pthread_t philo_pool[], int num)
@@ -52,7 +51,6 @@ static void	philo_death_handler(int philo_idx, t_atomic_bool exit_pool[],
 	i = -1;
 	while (++i < num)
 		set_atomic_bool(&exit_pool[i], true);
-	
 }
 
 static void	watch_workers(pthread_t philo_pool[],
@@ -74,7 +72,7 @@ static void	watch_workers(pthread_t philo_pool[],
 			{
 				philo_death_handler(i, exit_pool, num);
 				run = false;
-				break;
+				break ;
 			}
 			sum = sum && get_atomic_bool(&exit_pool[i]);
 		}
@@ -97,7 +95,8 @@ int			main(int ac, char *av[])
 	init_fork_pool(&g_fork_pool, g_settings.philo_num);
 	init_status_pools(g_deadline_pool, g_exited_pool, g_settings.philo_num);
 	launch_workers(g_philo_pool, g_settings.philo_num);
-	watch_workers(g_philo_pool, g_deadline_pool, g_exited_pool, g_settings.philo_num);
+	watch_workers(g_philo_pool, g_deadline_pool, g_exited_pool,
+				g_settings.philo_num);
 	destroy_status_pools(g_deadline_pool, g_exited_pool, g_settings.philo_num);
 	destroy_fork_pool(&g_fork_pool, g_settings.philo_num);
 	destroy_atomic_print(&g_print_guard);
